@@ -2,9 +2,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-//André Menezes Bins 21200695-1
-//Marcos do Nascimento Ferreira 21200886-6
-//Yanny Elise Partichelli 21200661-3
+
 
 public class BinarySearchTree<E extends Comparable<E>> {
 
