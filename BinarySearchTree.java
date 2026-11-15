@@ -8,19 +8,17 @@ public class BinarySearchTree<E extends Comparable<E>> {
 
     private static final class Node<E> {
 
-        public Node<E> parent;
         public Node<E> left;
         public Node<E> right;
         public E element;
 
         public Node(E element) {
-            parent = null;
             left = null;
             right = null;
             this.element = element;
         }
 
-        // Retorna o grau do nó: 0, 1 ou 2
+        // Returns the node degree: 0, 1 or 2
         public int degree() {
             int res = 0;
             if (left != null)
@@ -30,11 +28,11 @@ public class BinarySearchTree<E extends Comparable<E>> {
             return res;
         }
 
-        public boolean isBalanced() {//retorna se o nó está balanceado
-            return Math.abs(this.coeficient()) <= 1;//se o módulo do coeficiente for menor ou igual a um esta balanceado
+        public boolean isBalanced() {// returns whether this node is balanced
+            return Math.abs(this.balanceFactor()) <= 1;// balanced when the absolute balance factor is at most 1
         }
 
-        public int height() {//altura do nó
+        public int height() {// height of the node
             int leftHeight;
             int rightHeight;
             if(this.left==null){
@@ -55,7 +53,7 @@ public class BinarySearchTree<E extends Comparable<E>> {
             }
         }
 
-        public int coeficient() {//diferença da alturas da esq e dir
+        public int balanceFactor() {// right subtree height minus left subtree height
             int leftHeight;
             int rightHeight;
             if(this.left==null){
@@ -73,59 +71,59 @@ public class BinarySearchTree<E extends Comparable<E>> {
         }
 
 
-        public Node<E> RotateLeft() {//nó passa a apontar para o filho esquerdo de seu filho da direita, e o filho da direita passa a apontar para o nó
+        public Node<E> rotateLeft() {// node points to the left child of its right child, and the right child becomes the new subtree root
             Node<E> rightAux = this.right;
             this.right = rightAux.left;
             rightAux.left = this;
             return rightAux;
         }
 
-        public Node<E> RotateRight() {//nó passa a apontar para o filho direito de seu filho da esquerda, e o filho da esquerda passa a apontar para o nó
+        public Node<E> rotateRight() {// node points to the right child of its left child, and the left child becomes the new subtree root
             Node<E> leftAux = this.left;
             this.left = leftAux.right;
             leftAux.right = this;
             return leftAux;
         }
 
-        public Node<E> RotateLeftRight() {
-            this.left = this.left.RotateLeft();//no aponta para a subarvore esquerda rotacionada para esq
-            return this.RotateRight();//no é rotacionado p dir
+        public Node<E> rotateLeftRight() {
+            this.left = this.left.rotateLeft();// left subtree is rotated left
+            return this.rotateRight();// node is rotated right
         }
 
-        public Node<E> RotateRightLeft() {
-            this.right = this.right.RotateRight();//no aponta para a subarvore direita rotacionada p dir
-            return this.RotateLeft();//nó é rotacionado p esq
+        public Node<E> rotateRightLeft() {
+            this.right = this.right.rotateRight();// right subtree is rotated right
+            return this.rotateLeft();// node is rotated left
         }
 
 
-        public Node balance() {//percorre em "pos ordem"
-            if (this.left != null && !this.left.isNodeAndChildrenBalanced()) {//se tiver filho na esquerda faz e o mesmo nao estiver balanceado faz o balanceamento
+        public Node<E> balance() {// post-order traversal
+            if (this.left != null && !this.left.isNodeAndChildrenBalanced()) {// balance the left child if it exists and is unbalanced
                 this.left = this.left.balance();
             }
-            if (this.right != null && !this.right.isNodeAndChildrenBalanced()) {//se tiver filho na direita e o mesmo nao estiver balanceado faz o balanceamento
+            if (this.right != null && !this.right.isNodeAndChildrenBalanced()) {// balance the right child if it exists and is unbalanced
                 this.right = this.right.balance();
             }
 
-            //faz o balanceamento do no
-            if (this.coeficient() < -1) {//se a subarvore da esquerda tiver maior entra no if
+            // balance the current node
+            if (this.balanceFactor() < -1) {// left subtree is taller
                 
-                if (this.left.coeficient() >= 1) {//se a subarvore da direita do filho da esquerda for maior faz a rotação dupla esquerda-direita
-                    return this.RotateLeftRight();
+                if (this.left.balanceFactor() >= 1) {// left child is right-heavy: double left-right rotation
+                    return this.rotateLeftRight();
                 }
-                return this.RotateRight();//se nao faz rotação simples p direita
+                return this.rotateRight();// otherwise, single right rotation
 
-            } else if (this.coeficient() > 1) {//senao, se a subarvore da direita tiver maior entra no if
+            } else if (this.balanceFactor() > 1) {// right subtree is taller
                 
-                if (this.right.coeficient() <= -1) {//se a subarvore da esquerda do filho da direita for maior faz a rotação dupla direita-esquerda
-                    return this.RotateRightLeft();
+                if (this.right.balanceFactor() <= -1) {// right child is left-heavy: double right-left rotation
+                    return this.rotateRightLeft();
                 }
-                return this.RotateLeft();//se nao faz rotacao simples p esquerda
+                return this.rotateLeft();// otherwise, single left rotation
             }
             return this;
         }
 
 
-        public boolean isNodeAndChildrenBalanced() {//recursao p ver se nodo e seus filhos estao balanceados
+        public boolean isNodeAndChildrenBalanced() {// recursively checks whether this node and all its descendants are balanced
             if(this.isBalanced() &&(this.left == null || this.left.isNodeAndChildrenBalanced()) && (this.right == null || this.right.isNodeAndChildrenBalanced())){
                 return true;
         }else{
@@ -138,9 +136,9 @@ public class BinarySearchTree<E extends Comparable<E>> {
         }
     }
 
-    // Atributos
-    private int count; // contagem do número de nodos
-    private Node<E> root; // referência para o nodo raiz
+    // Attributes
+    private int count; // number of nodes
+    private Node<E> root; // reference to the root node
 
     public BinarySearchTree() {
         clear();
@@ -173,37 +171,35 @@ public class BinarySearchTree<E extends Comparable<E>> {
             count++;
             return;
         }
-        boolean inseriu = false;
-        Node<E> atual = root;
-        while (!inseriu) {
-            if (element.compareTo(atual.element) < 0) {
-                if (atual.left == null) {
-                    atual.left = aux;
-                    aux.parent = atual;
-                    inseriu = true;
+        boolean inserted = false;
+        Node<E> current = root;
+        while (!inserted) {
+            if (element.compareTo(current.element) < 0) {
+                if (current.left == null) {
+                    current.left = aux;
+                    inserted = true;
                 } else
-                    atual = atual.left;
+                    current = current.left;
             } else {
-                if (atual.right == null) {
-                    atual.right = aux;
-                    aux.parent = atual;
-                    inseriu = true;
+                if (current.right == null) {
+                    current.right = aux;
+                    inserted = true;
                 } else
-                    atual = atual.right;
+                    current = current.right;
             }
         }
         count++;
     }
 
     private Node<E> searchNode(E element) {
-        Node<E> atual = root;
-        while (atual != null) {
-            if (atual.element.equals(element))
-                return atual;
-            if (element.compareTo(atual.element) < 0)
-                atual = atual.left;
+        Node<E> current = root;
+        while (current != null) {
+            if (current.element.equals(element))
+                return current;
+            if (element.compareTo(current.element) < 0)
+                current = current.left;
             else
-                atual = atual.right;
+                current = current.right;
         }
         return null;
     }
@@ -219,7 +215,7 @@ public class BinarySearchTree<E extends Comparable<E>> {
         Node<E> parent = null, current = root;
         boolean hasLeft = false;
         if (root == null)
-            return true;
+            return false;
 
         while (current != null) {
             if (current.element.equals(value)) {
@@ -238,14 +234,13 @@ public class BinarySearchTree<E extends Comparable<E>> {
             return false;
 
         if (parent == null) {
-            remove(current);
-            return true;
-        }
-        if (hasLeft) {
+            root = remove(current);
+        } else if (hasLeft) {
             parent.left = remove(current);
         } else {
             parent.right = remove(current);
         }
+        count--;
         return true;
     }
 
@@ -257,7 +252,7 @@ public class BinarySearchTree<E extends Comparable<E>> {
             }
 
             if (node.left != null && node.right != null) {
-                Node<E> inOrderSuccessor = removeDuplicate(node);
+                Node<E> inOrderSuccessor = extractInOrderSuccessor(node);
                 node.element = inOrderSuccessor.element;
             } else if (node.left != null) {
                 node = node.left;
@@ -268,7 +263,7 @@ public class BinarySearchTree<E extends Comparable<E>> {
         return node;
     }
 
-    private Node<E> removeDuplicate(Node<E> node) {
+    private Node<E> extractInOrderSuccessor(Node<E> node) {
         Node<E> parent = node;
         node = node.right;
         boolean rightChild = node.left == null;
@@ -288,107 +283,107 @@ public class BinarySearchTree<E extends Comparable<E>> {
     }
 
 
-    public boolean isBalancedTree(){//true se a arvore estiver balanceada
-        return isBalancedNode(root);//chama com a raiz o isBalanced recursivo
+    public boolean isBalancedTree(){// true if the whole tree is balanced
+        return isBalancedNode(root);// recursive check starting at the root
     }
 
-    public Boolean isBalancedNode(Node<E> node) {//true se o node esta balanceado
+    private boolean isBalancedNode(Node<E> node) {// true if the node and its subtrees are balanced
         if (node == null) return true;
-        int balance = node.coeficient();
-        if (balance < -1 || balance > 1) return false;//verifica o proprio node
+        int balance = node.balanceFactor();
+        if (balance < -1 || balance > 1) return false;// check the node itself
         if (node.left != null) {
-            if (!isBalancedNode(node.left)) return false;//verifica esquerda
+            if (!isBalancedNode(node.left)) return false;// check left
         }
-        if (node.left != null) {
-            if (!isBalancedNode(node.left)) return false;//verifica direita
+        if (node.right != null) {
+            if (!isBalancedNode(node.right)) return false;// check right
         }
         return true;
     }
 
-     public void ApplyBalancing() {
-         while(!this.root.isNodeAndChildrenBalanced()) {//aplica o balanceamento se nao estiver balanceada
-              this.root = root.balance();//chama na raiz 
+     public void applyBalancing() {
+         while(this.root != null && !this.root.isNodeAndChildrenBalanced()) {// keep balancing until the tree is balanced
+              this.root = root.balance();// start at the root
         }
      }
 
 
-    public List<E> positionsCentral() {
+    public List<E> inOrder() {
         List<E> res = new LinkedList<>();
-        positionsCentralAux(root, res);
+        inOrderAux(root, res);
         return res;
     }
 
-    private void positionsCentralAux(Node<E> n, List<E> res) {
+    private void inOrderAux(Node<E> n, List<E> res) {
         if (n != null) {
-            positionsCentralAux(n.left, res); // Visita a subárvore da esquerda
-            res.add(n.element); // Visita o nodo
-            positionsCentralAux(n.right, res); // Visita a subárvore da direita
+            inOrderAux(n.left, res); // Visit the left subtree
+            res.add(n.element); // Visit the node
+            inOrderAux(n.right, res); // Visit the right subtree
         }
     }
 
     public List<E> breadth() {
         List<E> result = new ArrayList<>();
         List<Node<E>> queue = new LinkedList<>();
-        queue.add(this.root);
+        if (this.root != null)
+            queue.add(this.root);
         while (!queue.isEmpty()) {
-            Node<E> atual = queue.remove(0);
-            result.add(atual.element);
-            if (atual.left != null)
-                queue.add(atual.left);
-            if (atual.right != null)
-                queue.add(atual.right);
+            Node<E> current = queue.remove(0);
+            result.add(current.element);
+            if (current.left != null)
+                queue.add(current.left);
+            if (current.right != null)
+                queue.add(current.right);
         }
         return result;
     }
 
-    private void geraConexoesDOT(StringBuilder sb, Node<E> nodo) {
-        if (nodo == null) {
+    private void generateDOTConnections(StringBuilder sb, Node<E> node) {
+        if (node == null) {
             return;
         }
 
-        geraConexoesDOT(sb, nodo.left);
-        // "nodeA":esq -> "nodeB" [color="0.650 0.700 0.700"]
-        if (nodo.left != null) {
-            sb.append("\"node" + nodo.element + "\":esq -> \"node" + nodo.left.element + "\" \n");
+        generateDOTConnections(sb, node.left);
+        // "nodeA":left -> "nodeB" [color="0.650 0.700 0.700"]
+        if (node.left != null) {
+            sb.append("\"node" + node.element + "\":left -> \"node" + node.left.element + "\" \n");
         }
 
-        geraConexoesDOT(sb, nodo.right);
-        // "nodeA":dir -> "nodeB";
-        if (nodo.right != null) {
-            sb.append("\"node" + nodo.element + "\":dir -> \"node" + nodo.right.element + "\" \n");
+        generateDOTConnections(sb, node.right);
+        // "nodeA":right -> "nodeB";
+        if (node.right != null) {
+            sb.append("\"node" + node.element + "\":right -> \"node" + node.right.element + "\" \n");
         }
-        // "[label = " << nodo->hDir << "]" <<endl;
     }
 
-    private void geraNodosDOT(StringBuilder sb, Node<E> nodo) {
-        if (nodo == null) {
+    private void generateDOTNodes(StringBuilder sb, Node<E> node) {
+        if (node == null) {
             return;
         }
-        geraNodosDOT(sb, nodo.left);
-        // node10[label = "<esq> | 10 | <dir> "];
-        sb.append("node" + nodo.element + "[label = \"<esq> | " + nodo.element + " | <dir> \"]\n");
-        geraNodosDOT(sb, nodo.right);
+        generateDOTNodes(sb, node.left);
+        // node10[label = "<left> | 10 | <right> "];
+        sb.append("node" + node.element + "[label = \"<left> | " + node.element + " | <right> \"]\n");
+        generateDOTNodes(sb, node.right);
     }
 
-    public void geraConexoesDOT(StringBuilder sb) {
-        geraConexoesDOT(sb, root);
+    public void generateDOTConnections(StringBuilder sb) {
+        generateDOTConnections(sb, root);
     }
 
-    public void geraNodosDOT(StringBuilder sb) {
-        geraNodosDOT(sb, root);
+    public void generateDOTNodes(StringBuilder sb) {
+        generateDOTNodes(sb, root);
     }
 
-    // Gera uma saida no formato DOT
-    // Esta saida pode ser visualizada no GraphViz
-    // Versoes online do GraphViz pode ser encontradas em
+    // Generates output in DOT format
+    // The output can be visualized with Graphviz
+    // Online Graphviz viewers can be found at
     // http://www.webgraphviz.com/
     // http://viz-js.com/
     // https://dreampuf.github.io/GraphvizOnline
     public String toDOT() {
         StringBuilder sb = new StringBuilder();
         sb.append("digraph g { \nnode [shape = record,height=.1];\n");
-        geraNodosDOT(sb);
-        geraConexoesDOT(sb);
+        generateDOTNodes(sb);
+        generateDOTConnections(sb);
         sb.append("}\n");
         return sb.toString();
     }
