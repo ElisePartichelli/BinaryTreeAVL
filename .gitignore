@@ -1,0 +1,11 @@
+# Compiled classes
+*.class
+
+# IDE files
+.idea/
+.vscode/
+*.iml
+out/
+
+# OS files
+.DS_Store
